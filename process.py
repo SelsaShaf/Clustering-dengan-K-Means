@@ -37,51 +37,37 @@ def load_manual_data(rows):
 # ─────────────────────────────────────────────
 
 def preprocess_data(df):
-    # Mapping nama kolom fleksibel
     col_map = {}
     for col in df.columns:
-        c = col.lower().strip()
+        # Bersihkan nama kolom: buat huruf kecil, hapus enter (\n), dan hapus spasi ujung
+        c = col.lower().replace('\n', ' ').strip()
+        
         if 'total fat' in c:
             col_map[col] = 'Total Fat (g)'
         elif 'sodium' in c:
             col_map[col] = 'Sodium (mg)'
-        elif c in ['carbs', 'carbohydrates', 'carbs (g)', 'carbohydrates (g)']:
+        elif 'carb' in c:  # Mencari kata 'carb', lebih aman untuk "Carbs\n(g)"
             col_map[col] = 'Carbs (g)'
-        elif c in ['protein', 'protein (g)']:
+        elif 'protein' in c: # Mencari kata 'protein'
             col_map[col] = 'Protein (g)'
-        elif c == 'calories':
+        elif 'calories' in c and 'fat' not in c:
             col_map[col] = 'Calories'
-        elif c in ['item', 'name', 'product', 'menu item', 'item name']:
-            col_map[col] = 'Item'
-        elif c in ['company', 'restaurant', 'brand']:
-            col_map[col] = 'Company'
-
+            
     df = df.rename(columns=col_map)
-
-    for feat in FEATURE_COLS:
-        if feat not in df.columns:
-            df[feat] = np.nan
-
-    if 'Item' not in df.columns:
-        df['Item'] = [f'Item {i+1}' for i in range(len(df))]
-    if 'Company' not in df.columns:
-        df['Company'] = 'Unknown'
-
+    
+    # Memastikan kolom yang dibutuhkan ada di dataframe
+    for col in FEATURE_COLS:
+        if col not in df.columns:
+            df[col] = 0
+            
+    # Membersihkan data dari karakter non-numerik (misal: ada simbol < atau koma)
     for col in FEATURE_COLS:
         df[col] = pd.to_numeric(
-            df[col].astype(str).str.replace('<', '').str.strip(),
+            df[col].astype(str).str.replace(r'[^0-9.]', '', regex=True), 
             errors='coerce'
-        )
-
-    # Drop baris yang SEMUA fiturnya NaN
-    df_clean = df.dropna(subset=FEATURE_COLS, how='all').copy()
-
-    # Isi NaN dengan median
-    for col in FEATURE_COLS:
-        median_val = df_clean[col].median()
-        df_clean[col] = df_clean[col].fillna(0 if pd.isna(median_val) else median_val)
-
-    return df_clean.reset_index(drop=True)
+        ).fillna(0)
+    
+    return df
 
 
 # ─────────────────────────────────────────────

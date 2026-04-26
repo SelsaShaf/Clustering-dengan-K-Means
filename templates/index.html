@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FastFood Segmentasi K-Means Clustering</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <span class="dot"></span> Fast<span>Food</span>Cluster
+  </a>
+  <ul class="nav-links">
+    <li><a href="/" class="active"> Home</a></li>
+    <li><a href="/about"> About</a></li>
+  </ul>
+</nav>
+
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <p class="loading-text">Sedang memproses clustering...</p>
+</div>
+
+<!-- MAIN -->
+<main class="main-wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge"> Machine Learning · K-Means Clustering</div>
+    <h1>Segmentasi Produk<br><span class="highlight">Fast Food</span> Berdasarkan Nutrisi</h1>
+    <p>Kelompokkan produk makanan cepat saji berdasarkan kandungan nutrisi menggunakan algoritma K-Means Clustering.</p>
+  </section>
+
+  <!-- ERROR ALERT -->
+  {% if error %}
+  <div class="alert-error">
+     {{ error }}
+  </div>
+  {% endif %}
+
+  <!-- FORM -->
+  <form id="cluster-form" method="POST" action="/cluster" enctype="multipart/form-data">
+
+    <!-- Hidden inputs -->
+    <input type="hidden" name="source" id="source-input" value="default" />
+    <input type="hidden" name="n_clusters" id="k-value" value="3" />
+
+    <div class="card">
+      <p class="card-title"> Pilih Sumber Data</p>
+
+      <!-- TAB NAV -->
+      <div class="tab-nav">
+        <button type="button" class="tab-btn active" data-tab="default" onclick="switchTab('default')">
+           Dataset Default
+        </button>
+        <button type="button" class="tab-btn" data-tab="upload" onclick="switchTab('upload')">
+           Upload CSV
+        </button>
+        <button type="button" class="tab-btn" data-tab="manual" onclick="switchTab('manual')">
+           Input Manual
+        </button>
+      </div>
+
+      <!-- TAB: DEFAULT -->
+      <div class="tab-panel active" id="panel-default">
+        <div class="preview-box">
+          <div class="preview-row header">
+            <span>Company</span>
+            <span>Item</span>
+            <span>Calories</span>
+            <span>Fat (g)</span>
+            <span>Protein (g)</span>
+          </div>
+          <div class="preview-row">
+            <span>McDonald's</span><span>Big Mac</span><span>540</span><span>29</span><span>25</span>
+          </div>
+          <div class="preview-row">
+            <span>Burger King</span><span>Whopper</span><span>630</span><span>35</span><span>28</span>
+          </div>
+          <div class="preview-row">
+            <span>KFC</span><span>Fried Chicken</span><span>390</span><span>21</span><span>29</span>
+          </div>
+          <div class="preview-row">
+            <span>Taco Bell</span><span>Burrito</span><span>490</span><span>18</span><span>21</span>
+          </div>
+          <div class="preview-row">
+            <span>Pizza Hut</span><span>Pepperoni Slice</span><span>300</span><span>13</span><span>13</span>
+          </div>
+        </div>
+        <div class="dataset-info">
+          <span class="info-pill"> 1000+ Item Produk</span>
+          <span class="info-pill"> McDonald's, KFC, Burger King, dll</span>
+          <span class="info-pill"> 5 Fitur Nutrisi</span>
+          <span class="info-pill"> Sumber: Kaggle</span>
+        </div>
+      </div>
+
+      <!-- TAB: UPLOAD -->
+      <div class="tab-panel" id="panel-upload">
+        <div class="upload-area">
+          <input type="file" id="csv-file-input" name="csv_file" accept=".csv" />
+          <div class="upload-icon"></div>
+          <p>Klik atau drag & drop file CSV di sini</p>
+          <small>Format: CSV · Kolom wajib: Calories, Total Fat, Sodium, Carbs, Protein</small>
+          <div class="upload-filename" id="upload-filename"></div>
+        </div>
+      </div>
+
+      <!-- TAB: MANUAL -->
+      <div class="tab-panel" id="panel-manual">
+        <div class="manual-table-wrap">
+          <table class="manual-table">
+            <thead>
+              <tr>
+                <th>Nama Produk</th>
+                <th>Calories</th>
+                <th>Fat (g)</th>
+                <th>Sodium (mg)</th>
+                <th>Carbs (g)</th>
+                <th>Protein (g)</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="manual-tbody">
+              <tr>
+                <td><input type="text" name="item_name" placeholder="cth: Big Mac" /></td>
+                <td><input type="number" name="calories" placeholder="540" min="0" /></td>
+                <td><input type="number" name="fat" placeholder="29" min="0" step="0.1" /></td>
+                <td><input type="number" name="sodium" placeholder="1040" min="0" /></td>
+                <td><input type="number" name="carbs" placeholder="45" min="0" step="0.1" /></td>
+                <td><input type="number" name="protein" placeholder="25" min="0" step="0.1" /></td>
+                <td><button type="button" class="btn-remove-row" onclick="removeRow(this)">✕</button></td>
+              </tr>
+              <tr>
+                <td><input type="text" name="item_name" placeholder="cth: French Fries" /></td>
+                <td><input type="number" name="calories" placeholder="380" min="0" /></td>
+                <td><input type="number" name="fat" placeholder="19" min="0" step="0.1" /></td>
+                <td><input type="number" name="sodium" placeholder="270" min="0" /></td>
+                <td><input type="number" name="carbs" placeholder="48" min="0" step="0.1" /></td>
+                <td><input type="number" name="protein" placeholder="4" min="0" step="0.1" /></td>
+                <td><button type="button" class="btn-remove-row" onclick="removeRow(this)">✕</button></td>
+              </tr>
+              <tr>
+                <td><input type="text" name="item_name" placeholder="cth: Side Salad" /></td>
+                <td><input type="number" name="calories" placeholder="20" min="0" /></td>
+                <td><input type="number" name="fat" placeholder="0" min="0" step="0.1" /></td>
+                <td><input type="number" name="sodium" placeholder="10" min="0" /></td>
+                <td><input type="number" name="carbs" placeholder="4" min="0" step="0.1" /></td>
+                <td><input type="number" name="protein" placeholder="1" min="0" step="0.1" /></td>
+                <td><button type="button" class="btn-remove-row" onclick="removeRow(this)">✕</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <button type="button" class="btn-add-row" onclick="addRow()">＋ Tambah Baris</button>
+      </div>
+
+      <!-- K SELECTOR -->
+      <div class="k-section">
+        <span class="k-label"> Jumlah Cluster (K)</span>
+        <div class="k-options">
+          <button type="button" class="k-opt" data-k="2" onclick="selectK(2)">2</button>
+          <button type="button" class="k-opt selected" data-k="3" onclick="selectK(3)">3</button>
+          <button type="button" class="k-opt" data-k="4" onclick="selectK(4)">4</button>
+          <button type="button" class="k-opt" data-k="5" onclick="selectK(5)">5</button>
+          <button type="button" class="k-opt" data-k="6" onclick="selectK(6)">6</button>
+        </div>
+      </div>
+
+      <!-- SUBMIT -->
+      <button type="submit" class="btn-submit">
+         Mulai Clustering
+      </button>
+    </div>
+
+  </form>
+</main>
+
+<footer>
+  FastFood Segmentasi · K-Means Clustering · Dataset: <a href="https://www.kaggle.com/datasets/joebeachcapital/fast-food" target="_blank">Kaggle</a>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

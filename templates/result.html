@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hasil Clustering — FastFood Segmentasi</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <span class="dot"></span> Fast<span>Food</span>Cluster
+  </a>
+  <ul class="nav-links">
+    <li><a href="/"> Home</a></li>
+    <li><a href="/about"> About</a></li>
+  </ul>
+</nav>
+
+<main class="main-wrap">
+
+  <!-- HERO RESULT -->
+  <section class="hero">
+    <div class="hero-badge"> Clustering Selesai</div>
+    <h1>Hasil <span class="highlight">Segmentasi</span> Produk</h1>
+    <p>Berikut hasil pengelompokan produk fast food berdasarkan komposisi nutrisi.</p>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value">{{ result.total_items }}</div>
+      <div class="stat-label">Total Item</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">{{ result.n_clusters }}</div>
+      <div class="stat-label">Jumlah Cluster (K)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">
+        {% if result.silhouette_score %}{{ result.silhouette_score }}{% else %}—{% endif %}
+      </div>
+      <div class="stat-label">Silhouette Score</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">
+        {% if result.optimal_k_elbow %}K = {{ result.optimal_k_elbow }}{% else %}—{% endif %}
+      </div>
+      <div class="stat-label">K Optimal (Elbow)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value">
+        {% if result.best_k_silhouette %}K = {{ result.best_k_silhouette }}{% else %}—{% endif %}
+      </div>
+      <div class="stat-label">K Terbaik (Silhouette)</div>
+    </div>
+  </div>
+
+  <!-- PLOTS: ELBOW & SILHOUETTE -->
+  <div class="plots-grid">
+    <div class="plot-card">
+      <div class="plot-title"> Metode Elbow</div>
+      <p class="plot-desc">Grafik penurunan inertia untuk menentukan K optimal. Titik "siku" menandakan K terbaik.</p>
+      <img src="data:image/png;base64,{{ result.elbow_img }}" alt="Elbow Plot" />
+      {% if result.optimal_k_elbow %}
+      <div class="plot-note"> K optimal berdasarkan Elbow: <strong>K = {{ result.optimal_k_elbow }}</strong></div>
+      {% endif %}
+    </div>
+
+    {% if result.silhouette_img %}
+    <div class="plot-card">
+      <div class="plot-title"> Silhouette Score</div>
+      <p class="plot-desc">Nilai silhouette per K. Semakin tinggi nilainya, semakin baik pemisahan antar cluster.</p>
+      <img src="data:image/png;base64,{{ result.silhouette_img }}" alt="Silhouette Plot" />
+      {% if result.best_k_silhouette %}
+      <div class="plot-note"> K terbaik berdasarkan Silhouette: <strong>K = {{ result.best_k_silhouette }}</strong></div>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- SCATTER PLOT -->
+  <div class="plot-card" style="margin-bottom: 2rem;">
+    <div class="plot-title"> Scatter Plot Hasil Clustering</div>
+    <p class="plot-desc">Visualisasi sebaran produk berdasarkan Calories vs Total Fat, diwarnai per cluster.</p>
+    <img src="data:image/png;base64,{{ result.scatter_img }}" alt="Scatter Plot" />
+  </div>
+
+  <!-- CLUSTER CARDS -->
+  {% set colors = ['#22c55e','#f97316','#3b82f6','#a855f7','#ef4444','#eab308'] %}
+  <div class="clusters-grid">
+    {% for s in result.summaries %}
+    <div class="cluster-card" style="--cluster-color: {{ colors[loop.index0 % colors|length] }}">
+      <div class="cluster-number">Cluster {{ s.cluster_id }}</div>
+      <div class="cluster-label">{{ s.label }}</div>
+      <div class="cluster-count"><strong>{{ s.count }}</strong> item produk</div>
+      <div class="nutrisi-list">
+        <div class="nutrisi-item">
+          <span class="n-label"> Calories</span>
+          <span class="n-value">{{ s.avg_calories }} kcal</span>
+        </div>
+        <div class="nutrisi-item">
+          <span class="n-label"> Total Fat</span>
+          <span class="n-value">{{ s.avg_fat }} g</span>
+        </div>
+        <div class="nutrisi-item">
+          <span class="n-label"> Sodium</span>
+          <span class="n-value">{{ s.avg_sodium }} mg</span>
+        </div>
+        <div class="nutrisi-item">
+          <span class="n-label"> Carbs</span>
+          <span class="n-value">{{ s.avg_carbs }} g</span>
+        </div>
+        <div class="nutrisi-item">
+          <span class="n-label"> Protein</span>
+          <span class="n-value">{{ s.avg_protein }} g</span>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- TABLE SECTION -->
+  <div class="table-section card">
+    <p class="card-title"> Data Lengkap Hasil Clustering</p>
+
+    <div class="table-controls">
+      <input type="text" class="search-input" id="search-input"
+             placeholder=" Cari nama produk atau restoran..."
+             oninput="filterTable()" />
+      <select class="filter-select" id="filter-cluster" onchange="filterTable()">
+        <option value="all">Semua Cluster</option>
+        {% for s in result.summaries %}
+        <option value="{{ s.cluster_id }}">Cluster {{ s.cluster_id }} — {{ s.label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table" id="result-table">
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Restoran</th>
+            <th>Nama Produk</th>
+            <th>Calories</th>
+            <th>Fat (g)</th>
+            <th>Sodium (mg)</th>
+            <th>Carbs (g)</th>
+            <th>Protein (g)</th>
+            <th>Cluster</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% set badge_colors = ['#22c55e','#f97316','#3b82f6','#a855f7','#ef4444','#eab308'] %}
+          {% set badge_bg = ['rgba(34,197,94,0.12)','rgba(249,115,22,0.12)','rgba(59,130,246,0.12)','rgba(168,85,247,0.12)','rgba(239,68,68,0.12)','rgba(234,179,8,0.12)'] %}
+          {% for row in result.table_records %}
+          <tr data-cluster="{{ row.Cluster }}">
+            <td style="color: var(--text-muted)">{{ loop.index }}</td>
+            <td>{{ row.get('Company', '—') }}</td>
+            <td style="color: var(--text-primary); max-width: 200px; overflow: hidden; text-overflow: ellipsis;">
+              {{ row.get('Item', '—') }}
+            </td>
+            <td>{{ row.get('Calories', '—') }}</td>
+            <td>{{ row.get('Total Fat (g)', '—') }}</td>
+            <td>{{ row.get('Sodium (mg)', '—') }}</td>
+            <td>{{ row.get('Carbs (g)', '—') }}</td>
+            <td>{{ row.get('Protein (g)', '—') }}</td>
+            <td>
+              <span class="cluster-badge badge-c{{ row.Cluster % 6 }}">
+               {{ row.Cluster }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ACTION BUTTONS -->
+    <div class="action-row">
+      <a href="/download-csv" class="btn-download">⬇ Download Hasil CSV</a>
+      <a href="/" class="btn-back"> Coba Lagi</a>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  FastFood Segmentasi · K-Means Clustering · Dataset:
+  <a href="https://www.kaggle.com/datasets/joebeachcapital/fast-food" target="_blank">Kaggle</a>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

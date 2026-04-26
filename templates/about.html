@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — FastFood Segmentasi</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="/" class="navbar-brand">
+    <span class="dot"></span> Fast<span>Food</span>Cluster
+  </a>
+  <ul class="nav-links">
+    <li><a href="/"> Home</a></li>
+    <li><a href="/about" class="active">About</a></li>
+  </ul>
+</nav>
+
+<main class="main-wrap">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge">Tentang Aplikasi</div>
+    <h1>Informasi <span class="highlight">Aplikasi</span></h1>
+    <p>Detail tentang aplikasi, dataset, metode, dan pembuat.</p>
+  </section>
+
+  <div class="about-section">
+
+    <!-- TENTANG APLIKASI -->
+    <div class="about-card">
+      <h2> Tentang Aplikasi ini</h2>
+      <p>
+        Aplikasi ini adalah tools berbasis web yang memanfaatkan algoritma
+        <strong style="color: var(--accent)">K-Means Clustering</strong> untuk mengelompokkan produk
+        makanan cepat saji berdasarkan kandungan nutrisinya seperti kalori, lemak, sodium,
+        karbohidrat, dan protein. Tujuannya adalah membantu pengguna memahami pola nutrisi
+        pada berbagai produk fast food dari berbagai restoran.
+      </p>
+    </div>
+
+    <!-- CARA PENGGUNAAN -->
+    <div class="about-card">
+      <h2>Cara Menggunakan Aplikasi</h2>
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-text">Buka halaman <strong>Home</strong> dan pilih sumber data: Dataset Default, Upload CSV, atau Input Manual.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-text">Tentukan <strong>jumlah cluster (K)</strong> yang diinginkan, mulai dari 2 hingga 6 cluster.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-text">Klik tombol <strong>"Mulai Clustering"</strong> dan tunggu proses selesai.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">4</div>
+          <div class="step-text">Lihat hasil berupa <strong>grafik Elbow, Scatter Plot, Cluster Cards, dan Tabel Data</strong>.</div>
+        </div>
+        <div class="step-item">
+          <div class="step-num">5</div>
+          <div class="step-text">Download hasil clustering dalam format <strong>CSV</strong> jika diperlukan.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TENTANG K-MEANS -->
+    <div class="about-card">
+      <h2>Apa itu K-Means Clustering?</h2>
+      <p>
+        K-Means adalah algoritma <strong style="color: var(--accent)">unsupervised learning</strong>
+        yang mengelompokkan data ke dalam K cluster berdasarkan kemiripan. Algoritma ini bekerja
+        dengan cara menghitung jarak tiap data ke pusat cluster (centroid) menggunakan
+        Euclidean Distance, lalu memperbarui centroid secara iteratif hingga konvergen.
+      </p>
+      <br>
+      <p>
+        Untuk menentukan K optimal, digunakan <strong style="color: var(--accent)">Metode Elbow</strong>
+        yaitu dengan melihat titik "siku" pada grafik inertia vs jumlah cluster,
+        serta <strong style="color: var(--accent)">Silhouette Score</strong> sebagai ukuran
+        kualitas pengelompokan (nilai mendekati 1 = sangat baik).
+      </p>
+    </div>
+
+    <!-- DATASET -->
+    <div class="about-card">
+      <h2>Tentang Dataset</h2>
+      <p>Dataset yang digunakan bersumber dari Kaggle dan berisi informasi nutrisi produk fast food dari berbagai restoran ternama.</p>
+      <div class="dataset-pills" style="margin-top: 1rem;">
+        <span class="dataset-pill"> 1000+ Item Produk</span>
+        <span class="dataset-pill"> McDonald's</span>
+        <span class="dataset-pill"> Burger King</span>
+        <span class="dataset-pill"> KFC</span>
+        <span class="dataset-pill"> Taco Bell</span>
+        <span class="dataset-pill"> Pizza Hut</span>
+        <span class="dataset-pill"> Dan lainnya</span>
+      </div>
+      <div class="dataset-pills" style="margin-top: 0.75rem;">
+        <span class="info-pill" style="background: rgba(249,115,22,0.1); border-color: rgba(249,115,22,0.3); color: var(--accent-light);">
+           Sumber: Kaggle — Fast Food Nutrition
+        </span>
+      </div>
+      <br>
+      <p>
+        <strong style="color: var(--text-primary)">Fitur yang digunakan untuk clustering:</strong><br>
+        Calories, Total Fat (g), Sodium (mg), Carbohydrates (g), Protein (g)
+      </p>
+    </div>
+
+    <!-- PEMBUAT -->
+    <div class="about-card">
+      <h2> Pembuat</h2>
+      <div class="profile-grid">
+        <div class="profile-item">
+          <div class="p-label">Nama</div>
+          <div class="p-value">Selsa Shafana Alfiyani</div>
+        </div>
+        <div class="profile-item">
+          <div class="p-label">NIM</div>
+          <div class="p-value">301240041</div>
+        </div>
+        <div class="profile-item">
+          <div class="p-label">Program Studi</div>
+          <div class="p-value">Teknik Informatika</div>
+        </div>
+        <div class="profile-item">
+          <div class="p-label">Universitas</div>
+          <div class="p-value">Universitas Bale Bandung</div>
+        </div>
+        <div class="profile-item">
+          <div class="p-label">Mata Kuliah</div>
+          <div class="p-value">Kecerdasan Buatan</div>
+        </div>
+        <div class="profile-item">
+          <div class="p-label">Tahun</div>
+          <div class="p-value">2026</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEKNOLOGI -->
+    <div class="about-card">
+      <h2> Teknologi yang Digunakan</h2>
+      <div class="dataset-pills">
+        <span class="dataset-pill"> Python</span>
+        <span class="dataset-pill"> Flask</span>
+        <span class="dataset-pill"> Scikit-learn</span>
+        <span class="dataset-pill"> Pandas</span>
+        <span class="dataset-pill"> NumPy</span>
+        <span class="dataset-pill"> Matplotlib</span>
+        <span class="dataset-pill"> CSS3</span>
+        <span class="dataset-pill"> JavaScript</span>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer>
+  FastFood Segmentasi · K-Means Clustering · Dataset: <a href="https://www.kaggle.com/datasets/joebeachcapital/fast-food" target="_blank">Kaggle</a>
+</footer>
+
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
